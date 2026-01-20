@@ -1,0 +1,6 @@
+ClaimID,MemberID,Amount,Status
+1001,2001,150.00,Approved
+1002,2002,-20.00,Pending
+1003,2003,60000,Approved
+1004,2004,abc,Denied
+1005,,300.00,Unknown

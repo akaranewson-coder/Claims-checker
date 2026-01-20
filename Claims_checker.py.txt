@@ -1,0 +1,59 @@
+import csv
+
+def load_claims(file_path):
+    """Load claim data from a CSV file."""
+    claims = []
+    try:
+        with open(file_path, mode="r") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                claims.append(row)
+    except FileNotFoundError:
+        print("Error: File not found.")
+    return claims
+
+
+def validate_claim(claim):
+    """Validate a single claim and return issues found."""
+    issues = []
+
+    required_fields = ["ClaimID", "MemberID", "Amount", "Status"]
+    for field in required_fields:
+        if not claim.get(field):
+            issues.append(f"Missing field: {field}")
+
+    try:
+        amount = float(claim["Amount"])
+        if amount <= 0:
+            issues.append("Invalid amount: must be greater than 0")
+        if amount > 50000:
+            issues.append("Unusually high amount: requires manual review")
+    except ValueError:
+        issues.append("Amount is not a valid number")
+
+    valid_statuses = ["Pending", "Approved", "Denied"]
+    if claim["Status"] not in valid_statuses:
+        issues.append(f"Invalid status: {claim['Status']}")
+
+    return issues
+
+
+def run_validation(file_path):
+    """Run validation on all claims and print results."""
+    claims = load_claims(file_path)
+
+    print("\n--- Claims Validation Report ---\n")
+
+    for claim in claims:
+        issues = validate_claim(claim)
+        if issues:
+            print(f"Claim {claim['ClaimID']} has issues:")
+            for issue in issues:
+                print(f"  - {issue}")
+            print()
+        else:
+            print(f"Claim {claim['ClaimID']} is valid.\n")
+
+
+if __name__ == "__main__":
+    run_validation("sample_claims.csv")
